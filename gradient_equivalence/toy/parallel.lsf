@@ -1,0 +1,30 @@
+#!/bin/bash
+#BSUB -J parallel
+#BSUB -q private
+#BSUB -n 5
+#BSUB -R "span[ptile=1]"
+#BSUB -gpu num=1
+#BSUB -R h100nvl
+#BSUB -R affinity[core(10)]
+#BSUB -R rusage[mem=50G]
+#BSUB -W 10:00
+#BSUB -P acc_comppath_500k
+#BSUB -oo parallel.out
+cd /sc/arion/projects/comppath_500k/OPAL/SEA/gradient_equivalence/toy
+# This is the training script with arguments that is to be executed 
+# on each node
+SCRIPT="parallel.py --ktiles 10 --ntiles 800 --epochs 2 --workers 10"
+
+HOSTLIST=`cut -d ' ' -f1 $LSB_AFFINITY_HOSTFILE |  sort| uniq -c | awk '{print $2}'`
+NHOST=`echo "$HOSTLIST" | wc -w`
+NPPN=`cut -d ' ' -f1 $LSB_AFFINITY_HOSTFILE |  sort| uniq -c | awk 'NR==1{print $1}'`
+
+PCOMMAND="torchrun"
+PCOMMAND="$PCOMMAND --nproc_per_node=$NPPN"
+PCOMMAND="$PCOMMAND --nnodes=$NHOST"
+PCOMMAND="$PCOMMAND --rdzv_id=111"
+PCOMMAND="$PCOMMAND --rdzv_backend=c10d"
+PCOMMAND="$PCOMMAND --rdzv_endpoint=$HOSTNAME:29400"
+PCOMMAND="$PCOMMAND $SCRIPT"
+echo "$PCOMMAND"
+blaunch -z "$HOSTLIST" conda run --no-capture-output -n H100NVL $PCOMMAND

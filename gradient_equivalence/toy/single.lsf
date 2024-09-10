@@ -1,0 +1,14 @@
+#!/bin/bash
+#BSUB -J single
+#BSUB -q private
+#BSUB -n 1
+#BSUB -R "span[ptile=1]"
+#BSUB -R h100nvl
+#BSUB -gpu num=1
+#BSUB -R affinity[core(10)]
+#BSUB -R rusage[mem=50G]
+#BSUB -W 10:00
+#BSUB -P acc_comppath_500k
+#BSUB -oo single.out
+cd /sc/arion/projects/comppath_500k/OPAL/SEA/gradient_equivalence/toy
+conda run --no-capture-output -n H100NVL python single.py --ktiles 40 --ntiles 800 --epochs 2 --workers 10

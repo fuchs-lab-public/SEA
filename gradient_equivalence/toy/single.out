@@ -1,0 +1,57 @@
+Sender: LSF System <lsfadmin@lg07g06>
+Subject: Job 109536064: <single> in cluster <chimera> Exited
+
+Job <single> was submitted from host <li03c02> by user <campag01> in cluster <chimera> at Wed Dec 27 15:27:58 2023
+Job was executed on host(s) <lg07g06>, in queue <private>, as user <campag01> in cluster <chimera> at Wed Dec 27 15:28:11 2023
+</hpc/users/campag01> was used as the home directory.
+</sc/arion/projects/comppath_500k/OPAL/SEA/gradient_equivalence/toy> was used as the working directory.
+Started at Wed Dec 27 15:28:11 2023
+Terminated at Wed Dec 27 15:28:29 2023
+Results reported at Wed Dec 27 15:28:29 2023
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/bash
+#BSUB -J single
+#BSUB -q private
+#BSUB -n 1
+#BSUB -R "span[ptile=1]"
+#BSUB -R h100nvl
+#BSUB -gpu num=1
+#BSUB -R affinity[core(10)]
+#BSUB -R rusage[mem=50G]
+#BSUB -W 10:00
+#BSUB -P acc_comppath_500k
+#BSUB -oo single.out
+cd /sc/arion/projects/comppath_500k/OPAL/SEA/gradient_equivalence/toy
+conda run --no-capture-output -n H100NVL python single.py --ktiles 40 --ntiles 800 --epochs 2 --workers 10
+
+------------------------------------------------------------
+
+Exited with exit code 1.
+
+Resource usage summary:
+
+    CPU time :                                   14.00 sec.
+    Max Memory :                                 770 MB
+    Average Memory :                             403.38 MB
+    Total Requested Memory :                     51200.00 MB
+    Delta Memory :                               50430.00 MB
+    Max Swap :                                   -
+    Max Processes :                              16
+    Max Threads :                                52
+    Run time :                                   14 sec.
+    Turnaround time :                            31 sec.
+
+The output (if any) follows:
+
+1/2 - [1/20] - Mem: 0.20GB - loss: 0.695
+Traceback (most recent call last):
+  File "single.py", line 113, in <module>
+    main()
+  File "single.py", line 110, in main
+    raise Exception('Done')
+Exception: Done
+ERROR conda.cli.main_run:execute(49): `conda run python single.py --ktiles 40 --ntiles 800 --epochs 2 --workers 10` failed. (See above for error)

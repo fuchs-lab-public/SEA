@@ -1,0 +1,472 @@
+Sender: LSF System <lsfadmin@lg07g06>
+Subject: Job 109536065: <parallel> in cluster <chimera> Exited
+
+Job <parallel> was submitted from host <li03c02> by user <campag01> in cluster <chimera> at Wed Dec 27 15:28:01 2023
+Job was executed on host(s) <1*lg07g06>, in queue <private>, as user <campag01> in cluster <chimera> at Wed Dec 27 15:28:22 2023
+                            <1*lg07g02>
+                            <1*lg07g04>
+                            <1*lg07g01>
+                            <1*lg07g03>
+</hpc/users/campag01> was used as the home directory.
+</sc/arion/projects/comppath_500k/OPAL/SEA/gradient_equivalence/toy> was used as the working directory.
+Started at Wed Dec 27 15:28:22 2023
+Terminated at Wed Dec 27 15:28:58 2023
+Results reported at Wed Dec 27 15:28:58 2023
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/bash
+#BSUB -J parallel
+#BSUB -q private
+#BSUB -n 5
+#BSUB -R "span[ptile=1]"
+#BSUB -gpu num=1
+#BSUB -R h100nvl
+#BSUB -R affinity[core(10)]
+#BSUB -R rusage[mem=50G]
+#BSUB -W 10:00
+#BSUB -P acc_comppath_500k
+#BSUB -oo parallel.out
+cd /sc/arion/projects/comppath_500k/OPAL/SEA/gradient_equivalence/toy
+# This is the training script with arguments that is to be executed 
+# on each node
+SCRIPT="parallel.py --ktiles 10 --ntiles 800 --epochs 2 --workers 10"
+
+HOSTLIST=`cut -d ' ' -f1 $LSB_AFFINITY_HOSTFILE |  sort| uniq -c | awk '{print $2}'`
+NHOST=`echo "$HOSTLIST" | wc -w`
+NPPN=`cut -d ' ' -f1 $LSB_AFFINITY_HOSTFILE |  sort| uniq -c | awk 'NR==1{print $1}'`
+
+PCOMMAND="torchrun"
+PCOMMAND="$PCOMMAND --nproc_per_node=$NPPN"
+PCOMMAND="$PCOMMAND --nnodes=$NHOST"
+PCOMMAND="$PCOMMAND --rdzv_id=111"
+PCOMMAND="$PCOMMAND --rdzv_backend=c10d"
+PCOMMAND="$PCOMMAND --rdzv_endpoint=$HOSTNAME:29400"
+PCOMMAND="$PCOMMAND $SCRIPT"
+echo "$PCOMMAND"
+blaunch -z "$HOSTLIST" conda run --no-capture-output -n H100NVL $PCOMMAND
+
+------------------------------------------------------------
+
+Exited with exit code 1.
+
+Resource usage summary:
+
+    CPU time :                                   144.00 sec.
+    Max Memory :                                 1449 MB
+    Average Memory :                             440.94 MB
+    Total Requested Memory :                     256000.00 MB
+    Delta Memory :                               254551.00 MB
+    Max Swap :                                   -
+    Max Processes :                              19
+    Max Threads :                                154
+    Run time :                                   35 sec.
+    Turnaround time :                            57 sec.
+
+The output (if any) follows:
+
+torchrun --nproc_per_node=1 --nnodes=5 --rdzv_id=111 --rdzv_backend=c10d --rdzv_endpoint=lg07g06:29400 parallel.py --ktiles 10 --ntiles 800 --epochs 2 --workers 10
+[2023-12-27 15:28:31,348] torch.distributed.run: [WARNING] master_addr is only used for static rdzv_backend and when rdzv_endpoint is not specified.
+[2023-12-27 15:28:32,309] torch.distributed.run: [WARNING] master_addr is only used for static rdzv_backend and when rdzv_endpoint is not specified.
+[2023-12-27 15:28:32,596] torch.distributed.run: [WARNING] master_addr is only used for static rdzv_backend and when rdzv_endpoint is not specified.
+[2023-12-27 15:28:34,371] torch.distributed.run: [WARNING] master_addr is only used for static rdzv_backend and when rdzv_endpoint is not specified.
+[2023-12-27 15:28:34,527] torch.distributed.run: [WARNING] master_addr is only used for static rdzv_backend and when rdzv_endpoint is not specified.
+| distributed init (rank 4): env://
+| distributed init (rank 3): env://
+| distributed init (rank 1): env://
+| distributed init (rank 0): env://
+| distributed init (rank 2): env://
+0 -100
+2 <torch.distributed.distributed_c10d.ProcessGroup object at 0x2aae021f83b0>
+3 <torch.distributed.distributed_c10d.ProcessGroup object at 0x2b0f8d6b6330>
+1 <torch.distributed.distributed_c10d.ProcessGroup object at 0x2b19707bdcb0>
+4 <torch.distributed.distributed_c10d.ProcessGroup object at 0x2abad146e5b0>
+rank 0 data, sampler, model initialized
+rank 0 inside loop
+rank 1 data, sampler, model initialized
+rank 4 data, sampler, model initialized
+rank 3 data, sampler, model initialized
+rank 2 data, sampler, model initialized
+rank 0 features calculated tensor([[-2.5956e-30,  1.5421e-41, -2.3435e+20,  ...,  1.5421e-41,
+          8.9053e-18,  1.5418e-41],
+        [ 0.0000e+00,  0.0000e+00,  0.0000e+00,  ...,  1.5421e-41,
+         -2.4316e+20,  3.0683e-41],
+        [-2.6292e-30,  1.5421e-41,  1.1068e-17,  ...,  1.5421e-41,
+          6.0795e-18,  1.5418e-41],
+        ...,
+        [-2.6622e-30,  1.5421e-41,  2.6696e-17,  ...,  1.5421e-41,
+         -2.7737e+20,  3.0683e-41],
+        [ 0.0000e+00,  0.0000e+00,  0.0000e+00,  ...,  1.5421e-41,
+          4.3573e+26,  1.5417e-41],
+        [-2.6332e-30,  1.5421e-41, -2.7853e+20,  ...,  1.5421e-41,
+          1.7735e-16,  1.5418e-41]], device='cuda:0')
+rank 0 before barrier 1
+rank 1 inside loop
+rank 4 inside loop
+rank 2 inside loop
+rank 1 features calculated tensor([[0.0000, 0.0000, 0.0000,  ..., 0.0460, 0.0000, 0.1338],
+        [0.0000, 0.0000, 0.0000,  ..., 0.0000, 0.0825, 0.0209],
+        [0.0000, 0.0000, 0.0367,  ..., 0.0000, 0.0000, 0.1028],
+        ...,
+        [0.0000, 0.0000, 0.0000,  ..., 0.0000, 0.0553, 0.0692],
+        [0.0000, 0.0000, 0.0000,  ..., 0.0000, 0.0581, 0.0346],
+        [0.0828, 0.0000, 0.0000,  ..., 0.0000, 0.0000, 0.0500]],
+       device='cuda:0', grad_fn=<ReluBackward0>)
+rank 1 before barrier 1
+rank 3 inside loop
+rank 4 features calculated tensor([[0.0000, 0.0000, 0.0000,  ..., 0.0000, 0.0000, 0.0000],
+        [0.0317, 0.0000, 0.0000,  ..., 0.1116, 0.0370, 0.0848],
+        [0.0476, 0.0000, 0.0000,  ..., 0.0052, 0.1114, 0.1145],
+        ...,
+        [0.0364, 0.0000, 0.0654,  ..., 0.0167, 0.0032, 0.0000],
+        [0.0000, 0.0000, 0.0000,  ..., 0.0000, 0.0282, 0.2015],
+        [0.0000, 0.0000, 0.0000,  ..., 0.0083, 0.0255, 0.0438]],
+       device='cuda:0', grad_fn=<ReluBackward0>)
+rank 4 before barrier 1
+rank 3 features calculated tensor([[0.0000, 0.0000, 0.0353,  ..., 0.0000, 0.0411, 0.0504],
+        [0.0312, 0.0000, 0.0000,  ..., 0.0000, 0.1303, 0.0550],
+        [0.0411, 0.0000, 0.0000,  ..., 0.1376, 0.0000, 0.1332],
+        ...,
+        [0.0000, 0.0000, 0.0000,  ..., 0.0065, 0.0167, 0.2101],
+        [0.0000, 0.0000, 0.0000,  ..., 0.0000, 0.0000, 0.0187],
+        [0.0167, 0.0000, 0.0000,  ..., 0.0000, 0.0896, 0.1193]],
+       device='cuda:0', grad_fn=<ReluBackward0>)
+rank 3 before barrier 1
+rank 2 features calculated tensor([[0.0000, 0.0000, 0.0000,  ..., 0.0000, 0.0492, 0.0714],
+        [0.0000, 0.0000, 0.0000,  ..., 0.0818, 0.0349, 0.1333],
+        [0.0000, 0.0000, 0.0000,  ..., 0.0000, 0.0435, 0.1495],
+        ...,
+        [0.0000, 0.0000, 0.0191,  ..., 0.0000, 0.0000, 0.1188],
+        [0.0000, 0.0000, 0.0000,  ..., 0.0000, 0.0000, 0.1028],
+        [0.0000, 0.0000, 0.0000,  ..., 0.0000, 0.0429, 0.0550]],
+       device='cuda:0', grad_fn=<ReluBackward0>)
+rank 2 before barrier 1
+rank 0 after gather
+rank 2 after gather
+rank 2 before barrier 2
+rank 1 after gather
+rank 1 before barrier 2
+rank 3 after gather
+rank 3 before barrier 2
+rank 4 after gather
+rank 4 before barrier 2
+rank 0 loss
+rank 0 before barrier 2
+rank 1 grads calculated None
+rank 3 grads calculated None
+rank 4 grads calculated None
+rank 2 grads calculated None
+rank 0 grads calculated [tensor([[-9.5469e+21,  1.5421e-41,  0.0000e+00,  ...,  0.0000e+00,
+          0.0000e+00,  0.0000e+00],
+        [ 0.0000e+00,  0.0000e+00,  0.0000e+00,  ...,  0.0000e+00,
+          0.0000e+00,  0.0000e+00],
+        [ 0.0000e+00,  0.0000e+00,  0.0000e+00,  ...,  0.0000e+00,
+          0.0000e+00,  0.0000e+00],
+        ...,
+        [ 0.0000e+00,  0.0000e+00,  0.0000e+00,  ...,  0.0000e+00,
+          0.0000e+00,  0.0000e+00],
+        [ 0.0000e+00,  0.0000e+00,  0.0000e+00,  ...,  0.0000e+00,
+          0.0000e+00,  0.0000e+00],
+        [ 0.0000e+00,  0.0000e+00,  0.0000e+00,  ...,  0.0000e+00,
+          0.0000e+00,  0.0000e+00]], device='cuda:0'), tensor([[ 4.4501e-05, -5.6131e-05,  3.8928e-05,  ..., -4.9426e-05,
+          5.5508e-05, -2.3882e-05],
+        [ 2.0119e-05, -1.2015e-04,  7.6932e-05,  ..., -7.7534e-05,
+          4.5648e-05,  4.0299e-05],
+        [-3.4922e-05, -5.4116e-05,  7.0673e-05,  ..., -7.1604e-05,
+          6.4222e-05,  3.2425e-05],
+        ...,
+        [-1.3379e-05, -1.0217e-04,  7.1617e-05,  ..., -3.6578e-05,
+          9.6899e-05,  5.5978e-05],
+        [ 9.8619e-06, -1.2612e-04,  6.4319e-05,  ..., -7.3603e-05,
+          3.2079e-05,  3.1985e-05],
+        [ 6.2313e-05, -1.4298e-04,  8.1942e-05,  ..., -6.6607e-05,
+          6.6056e-05,  2.6377e-05]], device='cuda:0'), tensor([[ 0.0000e+00,  0.0000e+00,  0.0000e+00,  ...,  0.0000e+00,
+          0.0000e+00,  0.0000e+00],
+        [-6.4016e-05, -1.1023e-04,  8.7760e-05,  ..., -9.6336e-05,
+          8.5390e-05,  4.3485e-05],
+        [ 0.0000e+00,  0.0000e+00,  0.0000e+00,  ...,  0.0000e+00,
+          0.0000e+00,  0.0000e+00],
+        ...,
+        [ 0.0000e+00,  0.0000e+00,  0.0000e+00,  ...,  0.0000e+00,
+          0.0000e+00,  0.0000e+00],
+        [ 6.6803e-06, -8.4910e-05,  5.9669e-05,  ..., -1.0867e-04,
+          8.3007e-06,  4.4487e-05],
+        [ 0.0000e+00,  0.0000e+00,  0.0000e+00,  ...,  0.0000e+00,
+          0.0000e+00,  0.0000e+00]], device='cuda:0'), tensor([[ 7.7985e-06, -9.1225e-05,  2.8200e-05,  ..., -8.5398e-05,
+          5.0772e-05,  3.7325e-05],
+        [ 1.7531e-05, -1.0769e-04,  5.9800e-05,  ..., -9.6117e-05,
+          6.6186e-05,  3.5953e-05],
+        [ 1.4320e-05, -1.0226e-04,  1.0076e-04,  ..., -1.0023e-04,
+          5.6972e-05,  1.5887e-05],
+        ...,
+        [ 2.8855e-06, -7.9801e-05,  7.4523e-05,  ..., -1.2561e-04,
+          3.6123e-05,  5.4386e-05],
+        [ 0.0000e+00,  0.0000e+00,  0.0000e+00,  ...,  0.0000e+00,
+          0.0000e+00,  0.0000e+00],
+        [ 0.0000e+00,  0.0000e+00,  0.0000e+00,  ...,  0.0000e+00,
+          0.0000e+00,  0.0000e+00]], device='cuda:0'), tensor([[ 0.0000e+00,  0.0000e+00,  0.0000e+00,  ...,  0.0000e+00,
+          0.0000e+00,  0.0000e+00],
+        [-5.7591e-06, -1.2651e-04,  3.5271e-05,  ..., -7.0513e-05,
+          2.5898e-05,  6.8079e-05],
+        [ 0.0000e+00,  0.0000e+00,  0.0000e+00,  ...,  0.0000e+00,
+          0.0000e+00,  0.0000e+00],
+        ...,
+        [ 1.5987e-05, -1.2045e-04,  1.1316e-04,  ..., -5.8214e-05,
+          3.8615e-05,  1.2142e-05],
+        [ 2.3531e-05, -4.2055e-05,  4.1753e-05,  ..., -8.9280e-05,
+          4.1980e-05, -7.5387e-06],
+        [ 0.0000e+00,  0.0000e+00,  0.0000e+00,  ...,  0.0000e+00,
+          0.0000e+00,  0.0000e+00]], device='cuda:0')]
+rank 0 after scatter tensor([[-9.5469e+21,  1.5421e-41,  0.0000e+00,  ...,  0.0000e+00,
+          0.0000e+00,  0.0000e+00],
+        [ 0.0000e+00,  0.0000e+00,  0.0000e+00,  ...,  0.0000e+00,
+          0.0000e+00,  0.0000e+00],
+        [ 0.0000e+00,  0.0000e+00,  0.0000e+00,  ...,  0.0000e+00,
+          0.0000e+00,  0.0000e+00],
+        ...,
+        [ 0.0000e+00,  0.0000e+00,  0.0000e+00,  ...,  0.0000e+00,
+          0.0000e+00,  0.0000e+00],
+        [ 0.0000e+00,  0.0000e+00,  0.0000e+00,  ...,  0.0000e+00,
+          0.0000e+00,  0.0000e+00],
+        [ 0.0000e+00,  0.0000e+00,  0.0000e+00,  ...,  0.0000e+00,
+          0.0000e+00,  0.0000e+00]], device='cuda:0')
+rank 2 after scatter tensor([[ 0.0000e+00,  0.0000e+00,  0.0000e+00,  ...,  0.0000e+00,
+          0.0000e+00,  0.0000e+00],
+        [-6.4016e-05, -1.1023e-04,  8.7760e-05,  ..., -9.6336e-05,
+          8.5390e-05,  4.3485e-05],
+        [ 0.0000e+00,  0.0000e+00,  0.0000e+00,  ...,  0.0000e+00,
+          0.0000e+00,  0.0000e+00],
+        ...,
+        [ 0.0000e+00,  0.0000e+00,  0.0000e+00,  ...,  0.0000e+00,
+          0.0000e+00,  0.0000e+00],
+        [ 6.6803e-06, -8.4910e-05,  5.9669e-05,  ..., -1.0867e-04,
+          8.3007e-06,  4.4487e-05],
+        [ 0.0000e+00,  0.0000e+00,  0.0000e+00,  ...,  0.0000e+00,
+          0.0000e+00,  0.0000e+00]], device='cuda:0')
+rank 3 after scatter tensor([[ 7.7985e-06, -9.1225e-05,  2.8200e-05,  ..., -8.5398e-05,
+          5.0772e-05,  3.7325e-05],
+        [ 1.7531e-05, -1.0769e-04,  5.9800e-05,  ..., -9.6117e-05,
+          6.6186e-05,  3.5953e-05],
+        [ 1.4320e-05, -1.0226e-04,  1.0076e-04,  ..., -1.0023e-04,
+          5.6972e-05,  1.5887e-05],
+        ...,
+        [ 2.8855e-06, -7.9801e-05,  7.4523e-05,  ..., -1.2561e-04,
+          3.6123e-05,  5.4386e-05],
+        [ 0.0000e+00,  0.0000e+00,  0.0000e+00,  ...,  0.0000e+00,
+          0.0000e+00,  0.0000e+00],
+        [ 0.0000e+00,  0.0000e+00,  0.0000e+00,  ...,  0.0000e+00,
+          0.0000e+00,  0.0000e+00]], device='cuda:0')
+rank 4 after scatter tensor([[ 0.0000e+00,  0.0000e+00,  0.0000e+00,  ...,  0.0000e+00,
+          0.0000e+00,  0.0000e+00],
+        [-5.7591e-06, -1.2651e-04,  3.5271e-05,  ..., -7.0513e-05,
+          2.5898e-05,  6.8079e-05],
+        [ 0.0000e+00,  0.0000e+00,  0.0000e+00,  ...,  0.0000e+00,
+          0.0000e+00,  0.0000e+00],
+        ...,
+        [ 1.5987e-05, -1.2045e-04,  1.1316e-04,  ..., -5.8214e-05,
+          3.8615e-05,  1.2142e-05],
+        [ 2.3531e-05, -4.2055e-05,  4.1753e-05,  ..., -8.9280e-05,
+          4.1980e-05, -7.5387e-06],
+        [ 0.0000e+00,  0.0000e+00,  0.0000e+00,  ...,  0.0000e+00,
+          0.0000e+00,  0.0000e+00]], device='cuda:0')
+rank 1 after scatter tensor([[ 4.4501e-05, -5.6131e-05,  3.8928e-05,  ..., -4.9426e-05,
+          5.5508e-05, -2.3882e-05],
+        [ 2.0119e-05, -1.2015e-04,  7.6932e-05,  ..., -7.7534e-05,
+          4.5648e-05,  4.0299e-05],
+        [-3.4922e-05, -5.4116e-05,  7.0673e-05,  ..., -7.1604e-05,
+          6.4222e-05,  3.2425e-05],
+        ...,
+        [-1.3379e-05, -1.0217e-04,  7.1617e-05,  ..., -3.6578e-05,
+          9.6899e-05,  5.5978e-05],
+        [ 9.8619e-06, -1.2612e-04,  6.4319e-05,  ..., -7.3603e-05,
+          3.2079e-05,  3.1985e-05],
+        [ 6.2313e-05, -1.4298e-04,  8.1942e-05,  ..., -6.6607e-05,
+          6.6056e-05,  2.6377e-05]], device='cuda:0')
+1/2 - [1/20] - Mem: 0.11GB - loss: 0.695
+Traceback (most recent call last):
+  File "parallel.py", line 304, in <module>
+    main()
+  File "parallel.py", line 301, in main
+    raise Exception('Done')
+Exception: Done
+Traceback (most recent call last):
+  File "parallel.py", line 304, in <module>
+    main()
+  File "parallel.py", line 301, in main
+    raise Exception('Done')
+Exception: Done
+Traceback (most recent call last):
+  File "parallel.py", line 304, in <module>
+    main()
+  File "parallel.py", line 301, in main
+    raise Exception('Done')
+Exception: Done
+Traceback (most recent call last):
+  File "parallel.py", line 304, in <module>
+    main()
+  File "parallel.py", line 301, in main
+    raise Exception('Done')
+Exception: Done
+Traceback (most recent call last):
+  File "parallel.py", line 304, in <module>
+    main()
+  File "parallel.py", line 301, in main
+    raise Exception('Done')
+Exception: Done
+[2023-12-27 15:28:56,488] torch.distributed.elastic.multiprocessing.api: [ERROR] failed (exitcode: 1) local_rank: 0 (pid: 53241) of binary: /sc/arion/work/campag01/miniconda3/envs/H100NVL/bin/python3.8
+[2023-12-27 15:28:56,488] torch.distributed.elastic.multiprocessing.api: [ERROR] failed (exitcode: 1) local_rank: 0 (pid: 53213) of binary: /sc/arion/work/campag01/miniconda3/envs/H100NVL/bin/python3.8
+[2023-12-27 15:28:56,494] torch.distributed.elastic.multiprocessing.api: [ERROR] failed (exitcode: 1) local_rank: 0 (pid: 471876) of binary: /sc/arion/work/campag01/miniconda3/envs/H100NVL/bin/python3.8
+Traceback (most recent call last):
+  File "/sc/arion/work/campag01/miniconda3/envs/H100NVL/bin/torchrun", line 8, in <module>
+    sys.exit(main())
+  File "/sc/arion/work/campag01/miniconda3/envs/H100NVL/lib/python3.8/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 346, in wrapper
+    return f(*args, **kwargs)
+  File "/sc/arion/work/campag01/miniconda3/envs/H100NVL/lib/python3.8/site-packages/torch/distributed/run.py", line 806, in main
+    run(args)
+  File "/sc/arion/work/campag01/miniconda3/envs/H100NVL/lib/python3.8/site-packages/torch/distributed/run.py", line 797, in run
+    elastic_launch(
+  File "/sc/arion/work/campag01/miniconda3/envs/H100NVL/lib/python3.8/site-packages/torch/distributed/launcher/api.py", line 134, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/sc/arion/work/campag01/miniconda3/envs/H100NVL/lib/python3.8/site-packages/torch/distributed/launcher/api.py", line 264, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+parallel.py FAILED
+------------------------------------------------------------
+Failures:
+  <NO_OTHER_FAILURES>
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2023-12-27_15:28:56
+  host      : lg07g01.chimera.hpc.mssm.edu
+  rank      : 0 (local_rank: 0)
+  exitcode  : 1 (pid: 53213)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================
+Traceback (most recent call last):
+  File "/sc/arion/work/campag01/miniconda3/envs/H100NVL/bin/torchrun", line 8, in <module>
+    sys.exit(main())
+  File "/sc/arion/work/campag01/miniconda3/envs/H100NVL/lib/python3.8/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 346, in wrapper
+    return f(*args, **kwargs)
+  File "/sc/arion/work/campag01/miniconda3/envs/H100NVL/lib/python3.8/site-packages/torch/distributed/run.py", line 806, in main
+    run(args)
+  File "/sc/arion/work/campag01/miniconda3/envs/H100NVL/lib/python3.8/site-packages/torch/distributed/run.py", line 797, in run
+    elastic_launch(
+  File "/sc/arion/work/campag01/miniconda3/envs/H100NVL/lib/python3.8/site-packages/torch/distributed/launcher/api.py", line 134, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/sc/arion/work/campag01/miniconda3/envs/H100NVL/lib/python3.8/site-packages/torch/distributed/launcher/api.py", line 264, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+parallel.py FAILED
+------------------------------------------------------------
+Failures:
+  <NO_OTHER_FAILURES>
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2023-12-27_15:28:56
+  host      : lg07g04.chimera.hpc.mssm.edu
+  rank      : 3 (local_rank: 0)
+  exitcode  : 1 (pid: 53241)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================
+[2023-12-27 15:28:56,500] torch.distributed.elastic.multiprocessing.api: [ERROR] failed (exitcode: 1) local_rank: 0 (pid: 173383) of binary: /sc/arion/work/campag01/miniconda3/envs/H100NVL/bin/python3.8
+[2023-12-27 15:28:56,500] torch.distributed.elastic.multiprocessing.api: [ERROR] failed (exitcode: 1) local_rank: 0 (pid: 243263) of binary: /sc/arion/work/campag01/miniconda3/envs/H100NVL/bin/python3.8
+Traceback (most recent call last):
+  File "/sc/arion/work/campag01/miniconda3/envs/H100NVL/bin/torchrun", line 8, in <module>
+    sys.exit(main())
+  File "/sc/arion/work/campag01/miniconda3/envs/H100NVL/lib/python3.8/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 346, in wrapper
+    return f(*args, **kwargs)
+  File "/sc/arion/work/campag01/miniconda3/envs/H100NVL/lib/python3.8/site-packages/torch/distributed/run.py", line 806, in main
+    run(args)
+  File "/sc/arion/work/campag01/miniconda3/envs/H100NVL/lib/python3.8/site-packages/torch/distributed/run.py", line 797, in run
+    elastic_launch(
+  File "/sc/arion/work/campag01/miniconda3/envs/H100NVL/lib/python3.8/site-packages/torch/distributed/launcher/api.py", line 134, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/sc/arion/work/campag01/miniconda3/envs/H100NVL/lib/python3.8/site-packages/torch/distributed/launcher/api.py", line 264, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+parallel.py FAILED
+------------------------------------------------------------
+Failures:
+  <NO_OTHER_FAILURES>
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2023-12-27_15:28:56
+  host      : lg07g02.chimera.hpc.mssm.edu
+  rank      : 1 (local_rank: 0)
+  exitcode  : 1 (pid: 471876)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================
+Traceback (most recent call last):
+  File "/sc/arion/work/campag01/miniconda3/envs/H100NVL/bin/torchrun", line 8, in <module>
+    sys.exit(main())
+  File "/sc/arion/work/campag01/miniconda3/envs/H100NVL/lib/python3.8/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 346, in wrapper
+    return f(*args, **kwargs)
+  File "/sc/arion/work/campag01/miniconda3/envs/H100NVL/lib/python3.8/site-packages/torch/distributed/run.py", line 806, in main
+    run(args)
+  File "/sc/arion/work/campag01/miniconda3/envs/H100NVL/lib/python3.8/site-packages/torch/distributed/run.py", line 797, in run
+    elastic_launch(
+  File "/sc/arion/work/campag01/miniconda3/envs/H100NVL/lib/python3.8/site-packages/torch/distributed/launcher/api.py", line 134, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/sc/arion/work/campag01/miniconda3/envs/H100NVL/lib/python3.8/site-packages/torch/distributed/launcher/api.py", line 264, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+parallel.py FAILED
+------------------------------------------------------------
+Failures:
+  <NO_OTHER_FAILURES>
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2023-12-27_15:28:56
+  host      : lg07g03.chimera.hpc.mssm.edu
+  rank      : 2 (local_rank: 0)
+  exitcode  : 1 (pid: 173383)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================
+Traceback (most recent call last):
+  File "/sc/arion/work/campag01/miniconda3/envs/H100NVL/bin/torchrun", line 8, in <module>
+    sys.exit(main())
+  File "/sc/arion/work/campag01/miniconda3/envs/H100NVL/lib/python3.8/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 346, in wrapper
+    return f(*args, **kwargs)
+  File "/sc/arion/work/campag01/miniconda3/envs/H100NVL/lib/python3.8/site-packages/torch/distributed/run.py", line 806, in main
+    run(args)
+  File "/sc/arion/work/campag01/miniconda3/envs/H100NVL/lib/python3.8/site-packages/torch/distributed/run.py", line 797, in run
+    elastic_launch(
+  File "/sc/arion/work/campag01/miniconda3/envs/H100NVL/lib/python3.8/site-packages/torch/distributed/launcher/api.py", line 134, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/sc/arion/work/campag01/miniconda3/envs/H100NVL/lib/python3.8/site-packages/torch/distributed/launcher/api.py", line 264, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+parallel.py FAILED
+------------------------------------------------------------
+Failures:
+  <NO_OTHER_FAILURES>
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2023-12-27_15:28:56
+  host      : lg07g06.chimera.hpc.mssm.edu
+  rank      : 4 (local_rank: 0)
+  exitcode  : 1 (pid: 243263)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================
+ERROR conda.cli.main_run:execute(49): `conda run torchrun --nproc_per_node=1 --nnodes=5 --rdzv_id=111 --rdzv_backend=c10d --rdzv_endpoint=lg07g06:29400 parallel.py --ktiles 10 --ntiles 800 --epochs 2 --workers 10` failed. (See above for error)
+ERROR conda.cli.main_run:execute(49): `conda run torchrun --nproc_per_node=1 --nnodes=5 --rdzv_id=111 --rdzv_backend=c10d --rdzv_endpoint=lg07g06:29400 parallel.py --ktiles 10 --ntiles 800 --epochs 2 --workers 10` failed. (See above for error)
+ERROR conda.cli.main_run:execute(49): `conda run torchrun --nproc_per_node=1 --nnodes=5 --rdzv_id=111 --rdzv_backend=c10d --rdzv_endpoint=lg07g06:29400 parallel.py --ktiles 10 --ntiles 800 --epochs 2 --workers 10` failed. (See above for error)
+ERROR conda.cli.main_run:execute(49): `conda run torchrun --nproc_per_node=1 --nnodes=5 --rdzv_id=111 --rdzv_backend=c10d --rdzv_endpoint=lg07g06:29400 parallel.py --ktiles 10 --ntiles 800 --epochs 2 --workers 10` failed. (See above for error)
+ERROR conda.cli.main_run:execute(49): `conda run torchrun --nproc_per_node=1 --nnodes=5 --rdzv_id=111 --rdzv_backend=c10d --rdzv_endpoint=lg07g06:29400 parallel.py --ktiles 10 --ntiles 800 --epochs 2 --workers 10` failed. (See above for error)
